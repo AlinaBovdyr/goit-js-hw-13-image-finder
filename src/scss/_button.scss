@@ -10,12 +10,43 @@
   font-weight: 700;
   font-size: 14px;
   letter-spacing: 0.03em;
-  color: #ffffffd9;
+  color: #fff;
   background-color: #370d41db;
   cursor: pointer;
+
+  &:hover,
+  &:focus {
+    background-color: #430c0eeb;
+    color: #fff;
+  }
 }
 
 .btn {
   margin: 0;
   margin-left: 10px;
+}
+
+.button.is-hidden {
+  display: none;
+}
+
+.button > .spinner.is-hidden {
+  display: none;
+}
+
+.btn-primary {
+  background-color: #370d41db;
+  border: none;
+
+  &:hover,
+  &:focus {
+    background-color: #430c0eeb;
+  }
+}
+
+.btn-primary.disabled,
+.btn-primary:disabled {
+  color: rgba(255, 255, 255, 0.596);
+  background-color: #310507bf;
+  border: none;
 }
