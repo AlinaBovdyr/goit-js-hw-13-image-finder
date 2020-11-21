@@ -14,7 +14,7 @@ export default class ImagesApiService {
             .then(response => response.json())
             .then(({hits}) => {
                 this.page += 1; 
-                
+
                 return hits;
             });
     }
