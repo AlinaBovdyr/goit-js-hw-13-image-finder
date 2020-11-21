@@ -12,7 +12,7 @@ const loadMoreBtn = new LoadMoreBtn({
 });
 
 refs.searchForm.addEventListener('submit', onSearch);
-loadMoreBtn.refs.button.addEventListener('click', fetchImages);
+loadMoreBtn.refs.button.addEventListener('click', onLoadMore);
 
 function onSearch(e) {
     e.preventDefault();
@@ -24,9 +24,20 @@ function onSearch(e) {
     fetchImages();
 }
 
+function onLoadMore() {
+    fetchImages().then(() => {
+        const position = getElementPositionToScroll(refs.galleryContainer);
+        
+        window.scrollTo({
+            top: position,
+            behavior: "smooth"
+        });
+    });
+}
+
 function fetchImages() {
     loadMoreBtn.disable();
-    imagesApiService.fetchImages().then(images => { 
+    return imagesApiService.fetchImages().then(images => { 
         loadMoreBtn.enable();
         appendPhotoCardsMarkup(images);
     });
@@ -39,5 +50,13 @@ function appendPhotoCardsMarkup(hits) {
 function clearPhotoCardsContainer() {
     refs.galleryContainer.innerHTML = '';
 }
+
+function getElementPositionToScroll(element) {
+    const { bottom } = element.getBoundingClientRect();
+    const screenHeight = document.body.clientHeight;
+    
+    return screenHeight - (bottom - bottom/3);
+}
+
 
 
