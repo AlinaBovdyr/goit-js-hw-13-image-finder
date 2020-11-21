@@ -16,11 +16,6 @@
     height: 200px;
     object-fit: cover;
   }
-
-  // .gallery a {
-  //   text-decoration: none;
-  //   color: #2a2a2a;
-  // }
 }
 
 .stats {
@@ -40,7 +35,9 @@
 }
 
 .photo-card {
-  cursor: pointer;
+  &-image {
+    cursor: pointer;
+  }
 
   &:hover,
   &:focus-within {

@@ -43,3 +43,11 @@ img {
     color: #43164e;
   }
 }
+
+.lightbox__image {
+  display: block;
+  width: auto;
+  height: auto;
+  max-height: 98vh;
+  max-width: 100vw;
+}

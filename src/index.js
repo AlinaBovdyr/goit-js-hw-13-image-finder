@@ -2,12 +2,13 @@ import getRefs from './scripts/getRefs';
 import ImagesApiService from './scripts/apiService';
 import photoCardsTpl from './templates/photo-card.hbs';
 import LoadMoreBtn from './scripts/loadMoreBtn';
-import * as basicLightbox from 'basiclightbox';
 import { alert, error } from '@pnotify/core';
+import * as basicLightbox from 'basiclightbox';
 
 import './scss/styles.scss';
 import '@pnotify/core/dist/PNotify.css';
 import '@pnotify/core/dist/BrightTheme.css';
+import '../node_modules/basicLightbox/dist/basicLightbox.min.css';
 
 const { defaults } = require('@pnotify/core');
 defaults.delay = '1500';
@@ -18,6 +19,12 @@ const loadMoreBtn = new LoadMoreBtn({
   selector: '[data-action="load-more"]',
   hidden: true,
 });
+
+const modal = basicLightbox.create(`
+        <div class="lightbox__content">
+            <img class="lightbox__image" src="" alt="" />
+        </div>
+`);
 
 refs.searchForm.addEventListener('submit', onSearch);
 loadMoreBtn.refs.button.addEventListener('click', onLoadMore);
@@ -40,7 +47,9 @@ function onSearch(e) {
     loadMoreBtn.show();
     imagesApiService.resetPage();
     clearPhotoCardsContainer();
-    fetchImages();
+    fetchImages().then(() => {
+        refs.galleryContainer.addEventListener('click', onGalleryContainerClick);
+    });    
 }
 
 function onLoadMore() {
@@ -85,4 +94,29 @@ function getElementPositionToScroll(element) {
     return screenHeight - (bottom - bottom/3);
 }
 
+function onGalleryContainerClick(event) {
+    console.log(event.target);
+    if (event.target.closest('img')) {
+        openModal();
+        changeLightboxImgAttributes(event.target);
+    }
+}
 
+function openModal() {
+    modal.show();
+    window.addEventListener('keydown', onKeyPress);
+}
+
+function changeLightboxImgAttributes(image) {
+    const lightboxImg = document.querySelector('.lightbox__image');
+    const urlOriginal = image.dataset.source;
+    const altAttribute = image.alt;
+    lightboxImg.setAttribute('src', `${urlOriginal}`);
+    lightboxImg.setAttribute('alt', `${altAttribute}`);
+}
+
+function onKeyPress(event) {
+    if (event.key === 'Escape') {
+        modal.close();
+    }
+}
