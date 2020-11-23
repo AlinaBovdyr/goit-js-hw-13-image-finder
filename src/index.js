@@ -84,7 +84,7 @@ function onGalleryContainerClick(event) {
     if (event.target.closest('img')) {
         openModal();
         changeLightboxImgAttributes(event.target);
-    }
+    } 
 }
 
 function openModal() {
@@ -101,7 +101,37 @@ function changeLightboxImgAttributes(image) {
 }
 
 function onKeyPress(event) {
+    const lightboxImg = document.querySelector('.lightbox__image');
+
     if (event.key === 'Escape') {
         modal.close();
     }
+
+    const galleryItems = Array.from(refs.galleryContainer.children);
+    
+    const currentImage = galleryItems.find(galleryImage => {
+        
+        if (galleryImage.firstElementChild.dataset.source === lightboxImg.getAttribute('src')) {
+            return galleryImage
+        }
+    });
+    
+    const currentIndex = galleryItems.indexOf(currentImage);
+    const lastImageNum = galleryItems.length - 1;
+    
+    if (event.key === 'ArrowRight') {
+        if (currentIndex === lastImageNum) {
+            fetchImages();
+        }
+
+        lightboxImg.setAttribute('src', galleryItems[currentIndex + 1].firstElementChild.dataset.source);
+    } else if (event.key === 'ArrowLeft') {
+        if (currentIndex === 0) {
+            return;
+        }
+
+        lightboxImg.setAttribute('src', galleryItems[currentIndex - 1].firstElementChild.dataset.source);
+    }
 }
+
+
