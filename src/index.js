@@ -16,8 +16,10 @@ const refs = getRefs();
 const imagesApiService = new ImagesApiService();
 
 const modal = basicLightbox.create(`
-        <div class="lightbox__content">
+        <div class="lightbox__content modal">
+            <button id="left-btn" class="modal-btn"><i class="material-icons modal-btn-icon">arrow_back_ios</i></button>
             <img class="lightbox__image" src="" alt="" />
+            <button id="right-btn" class="modal-btn"><i class="material-icons modal-btn-icon">arrow_forward_ios</i></button>
         </div>
 `);
 
@@ -34,7 +36,10 @@ refs.searchForm.addEventListener('submit', onSearch);
 function onEntry(entries) {
     entries.forEach(entry => {
         if (entry.isIntersecting && imagesApiService.query !== '') {
-            fetchImages();
+            fetchImages().then(() => {
+                refs.upBtn.classList.add('visible');
+                refs.upBtn.addEventListener('click', onUpBtnClick);
+            });
         }
     });
 };
@@ -90,6 +95,11 @@ function onGalleryContainerClick(event) {
 function openModal() {
     modal.show();
     window.addEventListener('keydown', onKeyPress);
+
+    const rightModalBtn = document.querySelector('#right-btn');
+    const leftModalBtn = document.querySelector('#left-btn');
+    rightModalBtn.addEventListener('click', onRightModalBtnClick);
+    leftModalBtn.addEventListener('click', onLeftModalBtnClick);
 }
 
 function changeLightboxImgAttributes(image) {
@@ -101,37 +111,64 @@ function changeLightboxImgAttributes(image) {
 }
 
 function onKeyPress(event) {
-    const lightboxImg = document.querySelector('.lightbox__image');
-
     if (event.key === 'Escape') {
         modal.close();
     }
-
-    const galleryItems = Array.from(refs.galleryContainer.children);
     
-    const currentImage = galleryItems.find(galleryImage => {
-        
+    if (event.key === 'ArrowRight') {
+        getNextImage();
+    }
+    
+    if (event.key === 'ArrowLeft') {
+        getPreviousImage()
+    }
+}
+
+function onRightModalBtnClick() {
+    getNextImage();
+}
+
+function onLeftModalBtnClick() {
+    getPreviousImage()
+}
+
+function getCurrentModalImage() {
+    const lightboxImg = document.querySelector('.lightbox__image');
+    const galleryItems = Array.from(refs.galleryContainer.children);
+    const currentImage = galleryItems.find(galleryImage => { 
         if (galleryImage.firstElementChild.dataset.source === lightboxImg.getAttribute('src')) {
             return galleryImage
         }
     });
-    
     const currentIndex = galleryItems.indexOf(currentImage);
     const lastImageNum = galleryItems.length - 1;
-    
-    if (event.key === 'ArrowRight') {
-        if (currentIndex === lastImageNum) {
-            fetchImages();
-        }
 
-        lightboxImg.setAttribute('src', galleryItems[currentIndex + 1].firstElementChild.dataset.source);
-    } else if (event.key === 'ArrowLeft') {
-        if (currentIndex === 0) {
-            return;
-        }
-
-        lightboxImg.setAttribute('src', galleryItems[currentIndex - 1].firstElementChild.dataset.source);
-    }
+    return { lightboxImg, galleryItems, currentIndex, lastImageNum };
 }
 
+function getNextImage() {
+    const modalRefs = getCurrentModalImage();
+    if (modalRefs.currentIndex === modalRefs.lastImageNum) {
+            fetchImages();
+    }
 
+    modalRefs.lightboxImg.setAttribute('src', modalRefs.galleryItems[modalRefs.currentIndex + 1].firstElementChild.dataset.source);
+}
+
+function getPreviousImage() {
+    const modalRefs = getCurrentModalImage();
+    if (modalRefs.currentIndex === 0) {
+            return;
+    }
+
+    modalRefs.lightboxImg.setAttribute('src', modalRefs.galleryItems[modalRefs.currentIndex - 1].firstElementChild.dataset.source);
+}
+
+function onUpBtnClick() {
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+
+    refs.upBtn.classList.remove('visible');
+}
